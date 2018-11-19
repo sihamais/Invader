@@ -1957,6 +1957,15 @@ buildingPosX:
  .word 73                      # 0x49
  .word 100                     # 0x64
 
+ #La position verticale
+.globl buildingPosY
+ .align 2
+buildingPosY:
+ .word 49
+ 
+# building est un tableau de taille [4][6][8]
+# où 4 correspond au nombre de bâtiments
+# frameBuffer est un tableau de taille [64][128]
 # La position horizontale du coin supÃ©rieur gauche du canon du joueur.
  .data
  .align 2
@@ -2089,8 +2098,59 @@ main:                                   # @main
 
 # CrÃ©ez la boucle de jeu ici
 boucle_jeu:
+	
+	jal alienTurn
+	
+	
+	jal keyStroke
+	move $a0 $v0
+	jal printShooter
+	
+	jal resolveAndPrintShots
+	jal printBuilding
+	li $a0 15
+	jal sleep
 
- jal fonction_etudiant
+	
+
+# ---------------Conditions de fin de partie-----------------------
+
+
+#---------------Victoire de l'extra-terrestre--------------------
+
+	  #------------------quand la boite invisible des extra entre en collisions avec les batiments------------------
+	#la $t0 boxTopPosY
+	#lw $t0 0($t0)
+	
+	#la $t1 buildingPosY
+	#lw $t1 ($t1)
+	
+	#li $t3 27
+	#add $t2 $t0 $t3
+	#move $a0 $t2
+	#jal print_int
+
+	#bgt $t2 $t1 finJeu
+#--------------------------------------------------------------------------------------------------
+
+	#-----------------Quand les batiments sont tous détruits--------------------
+cond1:	
+	la $a1 building
+	lw $a1 0($a1) 
+	li $a0 191
+	li $t4 4
+	mul $a0 $a0 $t4
+
+	li $t0 0
+	
+	beq $t0 $a0 finJeu
+	add $t3 $t0 $a1
+	lw $t3 0($t3)
+	li $t1 1
+	beq $t3 $t1 boucle_jeu  	
+	addi $t0 $t0 4
+	j cond1
+# jal fonction_etudiant
 
  j boucle_jeu
 
@@ -2100,4 +2160,7 @@ fonction_etudiant:
 
 # Bah Ã§a va, j'ai le temps, je vais faire le projet le jour avant le rendu ;-)
 
+
+finJeu:
+	
  j quit

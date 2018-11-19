@@ -1,0 +1,23 @@
+
+
+Seance 1 
+
+
+Conditions de fin de jeu 
+
+ -Quand la boite invisible de l'extra atteint les batiments : 
+	on a déduit la taille de la boite inv... en multipliant nombre de ligne 
+	qu'occupe chaque extra * le nombre de ligne d'ennemies. Ce qui nous a donné une taille de 24
+	à partir de la on a considerer 24 comme abscisse de départ (pour la boite inv) et créer une cond
+	quand cette dernière entre en collision avec la ligne des batiments (qui est dans  buildingPosY=49)  
+		
+
+	Diff : -
+
+
+
+-Quand les batiments sont tous détruits : 
+
+	idée : parcourir tout le tableau, si un element du tableau de la vie des batiments vaut 1 le jeu continue sinon on parcours le tableau jusqu'a sa taille max si tout les elements du tableau sont a zero alors il n'y a plus de batiment et donc le jeu est fini
+	
+	Diff : ??
