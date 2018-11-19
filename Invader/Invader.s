@@ -1956,6 +1956,15 @@ buildingPosX:
  .word 46                      # 0x2e
  .word 73                      # 0x49
  .word 100                     # 0x64
+ 
+ # La position verticale du coin supérieur gauche des batiments
+.globl buildingPosY
+ .align 2
+buildingPosY:
+ .word 49
+# building est un tableau de taille [4][6][8]
+# où 4 correspond au nombre de bâtiments
+# frameBuffer est un tableau de taille [64][128]
 
 # La position horizontale du coin supÃ©rieur gauche du canon du joueur.
  .data
@@ -2087,14 +2096,67 @@ main:                                   # @main
 
 # Ã€ partir d'ici, c'est Ã  vous de jouer :
 
+
+ #Fin du jeu : Batiment
+  
 # CrÃ©ez la boucle de jeu ici
-boucle_jeu:
+boucle_jeu: 
 
- jal fonction_etudiant
-
+ jal alienTurn
+ jal keyStroke
+ move $a0 $v0
+ jal printShooter
+ jal resolveAndPrintShots
+ jal printBuilding
+ #jal fonction_etudiant
+ li $a0 1
+ jal sleep
+ #jal FinJeu_Batiment
  j boucle_jeu
 
 # Ajoutez vos fonctions en dessous :
+FinJeu_Ennemi:
+ la $a0 boxTopPosY
+ lw $t0 0($a0)
+ move $a0 $t0
+ 
+ la $a1 buildingPosY
+ lw $t1 ($a1)
+ li $t3 27
+ add $t2 $t0 $t3
+ move $a0 $t2
+ jal print_int
+ bgt $t2 $t1 quit
+ 
+FinJeu_Batiment:
+#prologue
+ addi $sp $sp -8
+ sw $a0 4($sp)
+ sw $ra 0($sp)
+
+#corps
+ la $a0 building
+ li $t0 0
+ #add $t0 $a0 $t0
+ li $t3 191
+ li $t4 4
+ mul $t2 $t3 $t4
+ beq $t0 $t2 fonction_etudiant
+ debut_boucle_batiment:
+ li $t1 1
+ add $t5 $t0 $a0
+ lw $t5 0($t5)
+ beq $t5 $t1 fin_boucle_batiment
+ add $t0 $t0 $t4
+ j debut_boucle_batiment
+ fin_boucle_batiment:
+
+#epilogue
+ addi $sp $sp 8
+ lw $a0 4($sp)
+ lw $ra 0($sp)
+ 
+ jr $ra
 
 fonction_etudiant:
 
