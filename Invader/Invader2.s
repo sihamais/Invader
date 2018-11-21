@@ -1387,16 +1387,16 @@ enemiesLife:
  .word 1                       # 0x1
  .word 1                       # 0x1
  .word 1                       # 0x1
- .word 1                       # 0x1
- .word 1                       # 0x1
- .word 1                       # 0x1
- .word 1                       # 0x1
- .word 1                       # 0x1
- .word 1                       # 0x1
- .word 1                       # 0x1
- .word 1                       # 0x1
- .word 1                       # 0x1
- .word 1                       # 0x1
+ .word 0                       # 0x1
+ .word 0                       # 0x1
+ .word 0                       # 0x1
+ .word 0                       # 0x1
+ .word 0                       # 0x1
+ .word 0                       # 0x1
+ .word 0                       # 0x1
+ .word 0                       # 0x1
+ .word 0                       # 0x1
+ .word 0                       # 0x1
 
 # La couleur des extraterrestres
  .globl enemyColor
@@ -2162,33 +2162,89 @@ boucle_jeu:
  jal resolveAndPrintShots
  jal printBuilding
  #jal fonction_etudiant
- li $a0 15
+ li $a0 5
  jal sleep
- jal FinJeu_Ennemi
+ jal FinJeu_Batiment
+ jal FinJeu_Extramorts
+ move $a0 $v0
+ jal PositonExtraV
+ move $a0 $v0
+ move $a1 $v1
+ jal FinJeu_Collision
  
  j boucle_jeu
 
 # Ajoutez vos fonctions en dessous :
-FinJeu_Ennemi:
+# -------------------------Ligne de l'extra en vie---------------------
+PositionExtraV:
 #prologue
  add $sp $sp -8
  sw $a0 4($sp)
  sw $ra 0($sp)
+ 
 #corps
- la $a0 boxTopPosY
- lw $t0 0($a0)
- move $a0 $t0
- la $a1 buildingPosY
- lw $t1 ($a1)
- li $t3 27
- add $t2 $t0 $t3
- move $a0 $t2
- jal print_int
- bgt $t2 $t1 finJeu
-#epilogue
- add $sp $sp 8
+ ble $a0 4 Ligne1
+ bge $a0 5 Ligne2
+ bge $a0 10 Ligne3 
+ Ligne1 : 
+ li $t0 1
+ j Ligne
+ Ligne2 :
+ li $t0 2
+ j Ligne
+ Ligne3:
+ li $t0 3
+ j Ligne
+ Ligne :
+ move $v0 $t0
+ 
+ ble $a0 4 Colonne1
+ bge $a0 5 Colonne2
+ bge $a0 10 Colonne3 
+ Colonne1:
+ move $t0 $a0
+ j Colonne
+ Colonne2:
+ subi $t0 $a0 5
+ j Colonne
+ Colonne3:
+ subi $t0 $a0 10
+ j Colonne
+ Colonne :
+ move $v1 $t0
+ 
+ FinPositionExtraV:
+ #epilogue
  lw $a0 4($sp)
  lw $ra 0($sp)
+ addi $sp $sp 8
+ jr $ra
+ 
+ 
+ 
+
+FinJeu_Collision:
+#prologue
+ add $sp $sp -12
+ sw $a1 8($sp)
+ sw $a0 4($sp)
+ sw $ra 0($sp)
+#corps
+jal enemyBoxPosY
+move $t0 $v0
+move $a0 $a1
+jal enemyBoxPosX
+move $t1 $v0
+ 
+ 
+ 
+ 
+
+#epilogue
+ lw $a1 8($sp)
+ lw $a0 4($sp)
+ lw $ra 0($sp)
+ addi $sp $sp 8
  jr $ra
  
 FinJeu_Batiment:
@@ -2203,19 +2259,20 @@ FinJeu_Batiment:
  li $t3 191
  li $t4 4
  mul $t2 $t3 $t4
- beq $t0 $t2 finJeu
  debut_boucle_batiment:
+ beq $t0 $t2 finJeu
  li $t1 1
  add $t5 $t0 $a0
  lw $t5 0($t5)
- beq $t5 $t1 finJeu
+ beq $t5 $t1 fin_boucle_batiment
  add $t0 $t0 $t4
  j debut_boucle_batiment
  fin_boucle_batiment:
 #epilogue
- addi $sp $sp 8
+
  lw $a0 4($sp)
  lw $ra 0($sp)
+ addi $sp $sp 8
  jr $ra
 
 FinJeu_Extramorts:
@@ -2225,24 +2282,25 @@ FinJeu_Extramorts:
  sw $ra 0($sp)
 #corps
  la $a0 enemiesLife
- li $t0 0
+ li $t0 14
  #add $t0 $a0 $t0
- li $t3 15
- li $t4 4
- mul $t2 $t3 $t4
- beq $t0 $t2 finJeu
+ 
  debut_boucle_extramorts:
+ blt $t0 $zero finJeu
+ li $t4 4
+ mul $t2 $t0 $t4
  li $t1 1
- add $t5 $t0 $a0
+ add $t5 $t2 $a0
  lw $t5 0($t5)
- beq $t5 $t1 finJeu
- add $t0 $t0 $t4
+ beq $t5 $t1 fin_boucle_extramorts
+ subi $t0 $t0 $t1
  j debut_boucle_extramorts
  fin_boucle_extramorts:
 #epilogue
- addi $sp $sp 8
  lw $a0 4($sp)
  lw $ra 0($sp)
+ addi $sp $sp 8
+ move $v0 $t0
  jr $ra
 
 fonction_etudiant:
