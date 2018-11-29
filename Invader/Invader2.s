@@ -2060,6 +2060,9 @@ $switch.table.keyStroke:
 #
 ################################################################################
 
+msg_finJeu :
+.asciiz "Fin"
+
 .text
 
  .globl main                    # -- Begin function main
@@ -2151,7 +2154,7 @@ cond1:
 # jal fonction_etudiant
 
  #Fin du jeu : Batiment
-  
+
 # CrÃ©ez la boucle de jeu ici
 boucle_jeu: 
 
@@ -2162,7 +2165,7 @@ boucle_jeu:
  jal resolveAndPrintShots
  jal printBuilding
  #jal fonction_etudiant
- li $a0 5
+ li $a0 0
  jal sleep
  jal FinJeu_Batiment
  jal FinJeu_Extramorts
@@ -2170,8 +2173,7 @@ boucle_jeu:
  jal PositionExtraV
  move $a0 $v0
  jal FinJeu_Collision
- beq $s2 $zero attaque
- addi $s2 $s2 -1
+
  
  
  j boucle_jeu
@@ -2251,10 +2253,7 @@ Ligne3_Collision:
  lw $t1 ($t1)
  li $t3 27
  add $t2 $t0 $t3
- move $a0 $t2
- jal print_int
- move $t2 $a0
- bgt $t2 $t1 finJeu
+ bgt $t2 $t1 PréFin
  j Fin_FinJeu_Collision
  
  Ligne2_Collision:
@@ -2265,10 +2264,7 @@ Ligne3_Collision:
  lw $t1 ($t1)	
  li $t3 19
  add $t2 $t0 $t3
- move $a0 $t2
- jal print_int
- move $t2 $a0
- bgt $t2 $t1 finJeu
+ bgt $t2 $t1 PréFin
  j Fin_FinJeu_Collision
  
  Ligne1_Collision:
@@ -2279,10 +2275,7 @@ Ligne3_Collision:
  lw $t1 ($t1)	
  li $t3 11
  add $t2 $t0 $t3
- move $a0 $t2
- jal print_int
- move $t2 $a0
- bgt $t2 $t1 finJeu
+ bgt $t2 $t1 PréFin
  j Fin_FinJeu_Collision
  
 Fin_FinJeu_Collision :
@@ -2305,7 +2298,7 @@ FinJeu_Batiment:
  li $t4 4
  mul $t2 $t3 $t4
  debut_boucle_batiment:
- beq $t0 $t2 finJeu
+ beq $t0 $t2 PréFin
  li $t1 1
  add $t5 $t0 $a0
  lw $t5 0($t5)
@@ -2361,18 +2354,45 @@ Vies_Joueur :
  addi $sp $sp 4
  move $v0 $t0
  jr $ra
+ 
+  
+PréFin :  
+jal clean_screen
+li $s4 0
+li $t3 3
+addi $s4 $s4 1
+beq $s4 $t3 finJeu
+j quit 
+j boucle_jeu
 
-fonction_etudiant:
-# Bah Ã§a va, j'ai le temps, je vais faire le projet le jour avant le rendu ;-)
-attaque :
-
- jal alienTurn
- jal resolveAndPrintShots 
- addi $s2 $s2 30
- j boucle_jeu 
 
 finJeu:
- addi $t0 $t0 1
- beq $t0 3 
+ la $a0 msg_finJeu
+ jal print_string
+
+ la $a0 enemiesLife
+ li $t0 14
+ li $t6 0
+ Debut_Boucle_Score:
+ blt $t0 $zero Score
+ li $t4 4
+ mul $t2 $t0 $t4
+ li $t1 1
+ add $t5 $t2 $a0
+ lw $t5 0($t5)
+ beq $t5 $t1 Compte_Vivants 
+ subi $t0 $t0 1
+ j Debut_Boucle_Score
+ Compte_Vivants :
+ addi $t6 $t6 1
+ subi $t0 $t0 1
+ j Debut_Boucle_Score
+ Score :
+ li $t7 15
+ sub $a0 $t7 $t6 
+ jal print_int
+ 
+ 
+ jal clean_screen
  
  j quit
