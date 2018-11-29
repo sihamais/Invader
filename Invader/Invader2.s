@@ -1387,16 +1387,16 @@ enemiesLife:
  .word 1                       # 0x1
  .word 1                       # 0x1
  .word 1                       # 0x1
- .word 0                       # 0x1
- .word 0                       # 0x1
- .word 0                       # 0x1
- .word 0                       # 0x1
- .word 0                       # 0x1
- .word 0                       # 0x1
- .word 0                       # 0x1
- .word 0                       # 0x1
- .word 0                       # 0x1
- .word 0                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
 
 # La couleur des extraterrestres
  .globl enemyColor
@@ -2167,14 +2167,35 @@ boucle_jeu:
  jal FinJeu_Batiment
  jal FinJeu_Extramorts
  move $a0 $v0
- jal PositonExtraV
+ jal PositionExtraV
  move $a0 $v0
- move $a1 $v1
+ jal print_int
+
  jal FinJeu_Collision
  
  j boucle_jeu
 
 # Ajoutez vos fonctions en dessous :
+
+#---------------Victoire de l'extra-terrestre--------------------
+
+	  #------------------quand la boite invisible des extra entre en collisions avec les batiments------------------
+	#la $t0 boxTopPosY
+	#lw $t0 0($t0)
+	
+	#la $t1 buildingPosY
+	#lw $t1 ($t1)
+	
+	#li $t3 27
+	#add $t2 $t0 $t3
+	#move $a0 $t2
+	#jal print_int
+
+	#bgt $t2 $t1 finJeu
+#--------------------------------------------------------------------------------------------------
+
+
+
 # -------------------------Ligne de l'extra en vie---------------------
 PositionExtraV:
 #prologue
@@ -2184,7 +2205,12 @@ PositionExtraV:
  
 #corps
  ble $a0 4 Ligne1
- bge $a0 5 Ligne2
+ beq $a0 5 Ligne2
+ beq $a0 6 Ligne2
+ beq $a0 7 Ligne2
+ beq $a0 8 Ligne2
+ beq $a0 9 Ligne2
+
  bge $a0 10 Ligne3 
  Ligne1 : 
  li $t0 1
@@ -2196,23 +2222,7 @@ PositionExtraV:
  li $t0 3
  j Ligne
  Ligne :
- move $v0 $t0
- 
- ble $a0 4 Colonne1
- bge $a0 5 Colonne2
- bge $a0 10 Colonne3 
- Colonne1:
- move $t0 $a0
- j Colonne
- Colonne2:
- subi $t0 $a0 5
- j Colonne
- Colonne3:
- subi $t0 $a0 10
- j Colonne
- Colonne :
- move $v1 $t0
- 
+ move $v0 $t0 
  FinPositionExtraV:
  #epilogue
  lw $a0 4($sp)
@@ -2293,7 +2303,7 @@ FinJeu_Extramorts:
  add $t5 $t2 $a0
  lw $t5 0($t5)
  beq $t5 $t1 fin_boucle_extramorts
- subi $t0 $t0 $t1
+ sub $t0 $t0 $t1
  j debut_boucle_extramorts
  fin_boucle_extramorts:
 #epilogue
