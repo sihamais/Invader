@@ -1392,11 +1392,11 @@ enemiesLife:
  .word 1                       # 0x1
  .word 1                       # 0x1
  .word 1                       # 0x1
- .word 1                       # 0x1
- .word 1                       # 0x1
- .word 1                       # 0x1
- .word 1                       # 0x1
- .word 1                       # 0x1
+ .word 0                       # 0x1
+ .word 0                       # 0x1
+ .word 0                       # 0x1
+ .word 0                       # 0x1
+ .word 0                       # 0x1
 
 # La couleur des extraterrestres
  .globl enemyColor
@@ -2169,9 +2169,10 @@ boucle_jeu:
  move $a0 $v0
  jal PositionExtraV
  move $a0 $v0
- jal print_int
-
  jal FinJeu_Collision
+ beq $s2 $zero attaque
+ addi $s2 $s2 -1
+ 
  
  j boucle_jeu
 
@@ -2230,28 +2231,62 @@ PositionExtraV:
  addi $sp $sp 8
  jr $ra
  
- 
- 
+#-------------------------- 
 
 FinJeu_Collision:
 #prologue
- add $sp $sp -12
- sw $a1 8($sp)
+ add $sp $sp -8
  sw $a0 4($sp)
  sw $ra 0($sp)
 #corps
-jal enemyBoxPosY
-move $t0 $v0
-move $a0 $a1
-jal enemyBoxPosX
-move $t1 $v0
+ beq $a0 3 Ligne3_Collision
+ beq $a0 2 Ligne2_Collision
+ beq $a0 1 Ligne1_Collision
  
- 
- 
- 
+Ligne3_Collision:	
+ la $t0 boxTopPosY
+ lw $t0 0($t0)
 
+ la $t1 buildingPosY
+ lw $t1 ($t1)
+ li $t3 27
+ add $t2 $t0 $t3
+ move $a0 $t2
+ jal print_int
+ move $t2 $a0
+ bgt $t2 $t1 finJeu
+ j Fin_FinJeu_Collision
+ 
+ Ligne2_Collision:
+ la $t0 boxTopPosY
+ lw $t0 0($t0)
+
+ la $t1 buildingPosY
+ lw $t1 ($t1)	
+ li $t3 19
+ add $t2 $t0 $t3
+ move $a0 $t2
+ jal print_int
+ move $t2 $a0
+ bgt $t2 $t1 finJeu
+ j Fin_FinJeu_Collision
+ 
+ Ligne1_Collision:
+ la $t0 boxTopPosY
+ lw $t0 0($t0)
+	
+ la $t1 buildingPosY
+ lw $t1 ($t1)	
+ li $t3 11
+ add $t2 $t0 $t3
+ move $a0 $t2
+ jal print_int
+ move $t2 $a0
+ bgt $t2 $t1 finJeu
+ j Fin_FinJeu_Collision
+ 
+Fin_FinJeu_Collision :
 #epilogue
- lw $a1 8($sp)
  lw $a0 4($sp)
  lw $ra 0($sp)
  addi $sp $sp 8
@@ -2312,10 +2347,32 @@ FinJeu_Extramorts:
  addi $sp $sp 8
  move $v0 $t0
  jr $ra
+ 
+Vies_Joueur :
+#prologue
+ add $sp $sp -4
+ sw $ra 0($sp)
+
+#corps
+ 
+ 
+#epilogue
+ lw $ra 0($sp)
+ addi $sp $sp 4
+ move $v0 $t0
+ jr $ra
 
 fonction_etudiant:
 # Bah Ã§a va, j'ai le temps, je vais faire le projet le jour avant le rendu ;-)
+attaque :
+
+ jal alienTurn
+ jal resolveAndPrintShots 
+ addi $s2 $s2 30
+ j boucle_jeu 
 
 finJeu:
-
+ addi $t0 $t0 1
+ beq $t0 3 
+ 
  j quit
