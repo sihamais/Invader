@@ -1292,6 +1292,11 @@ quit:                                   # @quit
 # projet.                                                                      #
 #                                                                              #
 ################################################################################
+ligne_horizontale : .asciiz "################################################################################"
+msg_fin_jeu : .ascii "\t\tFin de partie \n\t\t Score : "
+
+
+
 
 # Bitmap de l'Ã©cran. Chaque pixel correspond Ã  une valeur sur 32bits 0xaabbccdd
 # oÃ¹ bb est la couleur rouge, cc la verte et dd la bleue sur 256 valeurs.
@@ -1392,35 +1397,35 @@ enemiesLife:
  .word 1                       # 0x1
  .word 1                       # 0x1
  .word 1                       # 0x1
- .word 0                       # 0x1
- .word 0                       # 0x1
- .word 0                       # 0x1
- .word 0                       # 0x1
- .word 0                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
 
 # La couleur des extraterrestres
  .globl enemyColor
  .align 2
 enemyColor:
- .word 16777215                # 0xffffff
+ .word 52326                # 0xffffff
 
 # La couleur du canon du joueur
  .globl shooterColor
  .align 2
 shooterColor:
- .word 16777215                # 0xffffff
+ .word 11777719                # 0xffffff
 
 # La couleur des projectiles
  .globl projectileColor
  .align 2
 projectileColor:
- .word 16777215                # 0xffffff
+ .word 13369395                # 0xffffff
 
 # La couleur des bÃ¢timents
  .globl buildingColor
  .align 2
 buildingColor:
- .word 16777215                # 0xffffff
+ .word 10903880                # 0xffffff
 
 # La vie des bÃ¢timents
  .globl building
@@ -1619,6 +1624,204 @@ building:
  .word 1                       # 0x1
  .word 1                       # 0x1
 
+#copyBuilding est la copie du tableau Building
+.globl copyBuilding
+.align 2
+copyBuilding :
+  .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 0                       # 0x0
+ .word 1                       # 0x1
+ .word 1                       # 0x1
+
+
 
 # Le nombre de projectiles dans le jeu en ce moment
 # ** Ne pas modifier **
@@ -1638,6 +1841,7 @@ shootingPosition:
  .globl boxSizeX
  .align 2
 boxSizeX:
+
  .word 0                       # 0x0
 
 # La taille verticale de la boÃ®te invisible des extraterrestres
@@ -2060,8 +2264,6 @@ $switch.table.keyStroke:
 #
 ################################################################################
 
-msg_finJeu :
-.asciiz "Fin"
 
 .text
 
@@ -2097,75 +2299,21 @@ main:                                   # @main
  sw $1, %lo(boxSizeY)($2)
  jal clean_screen
 
-# Ã€ partir d'ici, c'est Ã  vous de jouer 
-
-# CrÃ©ez la boucle de jeu ici
-#boucle_jeu :
-	
-	#jal alienTurn
-	
-	#jal keyStroke
-	#move $a0 $v0
-	#jal printShooter
-	
-	#jal resolveAndPrintShots
-	#jal printBuilding
-	#li $a0 15
-	#jal sleep
-
-	
-
-# ---------------Conditions de fin de partie-----------------------
-
-
-#---------------Victoire de l'extra-terrestre--------------------
-
-	  #------------------quand la boite invisible des extra entre en collisions avec les batiments------------------
-	#la $t0 boxTopPosY
-	#lw $t0 0($t0)
-	
-	#la $t1 buildingPosY
-	#lw $t1 ($t1)
-	
-	#li $t3 27
-	#add $t2 $t0 $t3
-	#move $a0 $t2
-	#jal print_int
-
-	#bgt $t2 $t1 finJeu
-#--------------------------------------------------------------------------------------------------
-
-	#-----------------Quand les batiments sont tous détruits--------------------
-cond1:	
-	#la $a1 building
-	#lw $a1 0($a1) 
-	#li $a0 191
-	#li $t4 4
-	#mul $a0 $a0 $t4
-
-	#li $t0 0
-	
-	#beq $t0 $a0 finJeu
-	#add $t3 $t0 $a1
-	#lw $t3 0($t3)
-	#li $t1 1
-	#beq $t3 $t1 boucle_jeu  	
-	#j cond1
-# jal fonction_etudiant
-
- #Fin du jeu : Batiment
-
-# CrÃ©ez la boucle de jeu ici
+# s2 pour le ralentissement des projectiles
+ li $s2 1
+# s3 pour le nombre de vies du joueur (nombre de parties)
+ li $s3 0
+# s4 pour le calcul du score
+ li $s4 0
+ 
 boucle_jeu: 
 
- jal alienTurn
  jal keyStroke
  move $a0 $v0
  jal printShooter
  jal resolveAndPrintShots
  jal printBuilding
- #jal fonction_etudiant
- li $a0 0
+ li $a0 1
  jal sleep
  jal FinJeu_Batiment
  jal FinJeu_Extramorts
@@ -2173,34 +2321,53 @@ boucle_jeu:
  jal PositionExtraV
  move $a0 $v0
  jal FinJeu_Collision
-
- 
- 
+ beq $s2 $zero , attaque 
+ addi $s2 $s2 -1
  j boucle_jeu
+ 
+ boucle_jeu_nouvelle_vie :
+ sw $zero shotsInFlight($zero)
+ jal clean_screen
+ li $t0 0
+ sw $t0 boxTopPosX
+ sw $t0 boxTopPosY
+ 
+ li $t0 14
+ Renaissance_Extra :
+ blt $t0 $zero Renaissance_Batiment
+ li $t4 4
+ mul $t2 $t0 $t4
+ li $t3 1
+ sw $t3 enemiesLife($t2)
+ addi $t0 $t0 -1
+ j Renaissance_Extra
+ 
+ 
+ Renaissance_Batiment :
+ li $t1 192
+ Boucle :
+ blt $t1 $zero Renaissance_Joueur
+ li $t4 4
+ mul $t2 $t1 $t4
+ lw $t3 copyBuilding($t2)
+ sw $t3 building($t2)
+ addi $t1 $t1 -1
+ j Boucle
+ 
+ Renaissance_Joueur :
+ li $a0 100
+ jal sleep
+ j boucle_jeu
+ 
 
-# Ajoutez vos fonctions en dessous :
-
-#---------------Victoire de l'extra-terrestre--------------------
-
-	  #------------------quand la boite invisible des extra entre en collisions avec les batiments------------------
-	#la $t0 boxTopPosY
-	#lw $t0 0($t0)
-	
-	#la $t1 buildingPosY
-	#lw $t1 ($t1)
-	
-	#li $t3 27
-	#add $t2 $t0 $t3
-	#move $a0 $t2
-	#jal print_int
-
-	#bgt $t2 $t1 finJeu
-#--------------------------------------------------------------------------------------------------
+ 
+#################################################################################
 
 
 
-# -------------------------Ligne de l'extra en vie---------------------
+# -------------------------Conditions de Fin de Jeu---------------------#
 PositionExtraV:
+#
 #prologue
  add $sp $sp -8
  sw $a0 4($sp)
@@ -2233,7 +2400,7 @@ PositionExtraV:
  addi $sp $sp 8
  jr $ra
  
-#-------------------------- 
+##################################
 
 FinJeu_Collision:
 #prologue
@@ -2341,35 +2508,29 @@ FinJeu_Extramorts:
  move $v0 $t0
  jr $ra
  
-Vies_Joueur :
+# le label attaque contrôle le ralentissement des extraterrestres
+attaque : 	    
+ jal alienTurn
+ jal resolveAndPrintShots
+ addi $s2 $s2 15
+ j boucle_jeu
+  
+PréFin : 
+ jal Calcul_Score
+ move $t0 $v0
+ add $s4 $s4 $t0
+ addi $s3 $s3 1
+ li $t3 3
+ beq $s3 $t3 finJeu
+ j boucle_jeu_nouvelle_vie
+
+Calcul_Score :
 #prologue
- add $sp $sp -4
+ addi $sp $sp -8
+ sw $a0 4($sp)
  sw $ra 0($sp)
 
 #corps
- 
- 
-#epilogue
- lw $ra 0($sp)
- addi $sp $sp 4
- move $v0 $t0
- jr $ra
- 
-  
-PréFin :  
-jal clean_screen
-li $s4 0
-li $t3 3
-addi $s4 $s4 1
-beq $s4 $t3 finJeu
-j quit 
-j boucle_jeu
-
-
-finJeu:
- la $a0 msg_finJeu
- jal print_string
-
  la $a0 enemiesLife
  li $t0 14
  li $t6 0
@@ -2383,16 +2544,34 @@ finJeu:
  beq $t5 $t1 Compte_Vivants 
  subi $t0 $t0 1
  j Debut_Boucle_Score
+ 
  Compte_Vivants :
  addi $t6 $t6 1
  subi $t0 $t0 1
  j Debut_Boucle_Score
+ 
  Score :
  li $t7 15
  sub $a0 $t7 $t6 
+ move $v0 $a0
+ 
+#epilogue
+ lw $a0 4($sp)
+ lw $ra 0($sp)
+ addi $sp $sp 8
+ jr $ra 
+ 
+finJeu:
+ la $t0 ligne_horizontale
+ la $t1 msg_fin_jeu
+ move $a0 $t0
+ jal print_string
+ move $a0 $t1
+ jal print_string
+ move $a0 $s4
  jal print_int
- 
- 
+ la $a0 ligne_horizontale
+ jal print_string
  jal clean_screen
- 
  j quit
+
