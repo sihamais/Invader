@@ -1292,9 +1292,6 @@ quit:                                   # @quit
 # projet.                                                                      #
 #                                                                              #
 ################################################################################
-ligne_horizontale : .asciiz "################################################################################"
-msg_fin_jeu : .ascii "\t\tFin de partie \n\t\t Score : "
-
 
 
 
@@ -2256,6 +2253,16 @@ $switch.table.keyStroke:
  .word 3                       # 0x3
  .word 2                       # 0x2
 
+
+
+ligne_horizontale:
+ .asciiz "################################################################################"
+diese : .ascii "#"
+diese_fin : .asciiz "\t\t\t\t\t\t\t\t\t\t#"
+msg_fin_jeu : .ascii "\t\tFin de partie \n\t\t Score : "
+saut : .asciiz "\n"
+
+
 ################################################################################
 # Partie .text (le programme)
 #
@@ -2266,6 +2273,8 @@ $switch.table.keyStroke:
 
 
 .text
+
+
 
  .globl main                    # -- Begin function main
 main:                                   # @main
@@ -2325,8 +2334,11 @@ boucle_jeu:
  addi $s2 $s2 -1
  j boucle_jeu
  
+#------------------------Etique  boucle_jeu_nouvelle_vie------------------------#
  boucle_jeu_nouvelle_vie :
- sw $zero shotsInFlight($zero)
+#Reinitialise les données du jeu leurs états de base pour pouvoir lancer une nouvelle partie
+
+  sw $zero shotsInFlight($zero)
  jal clean_screen
  li $t0 0
  sw $t0 boxTopPosX
@@ -2358,16 +2370,52 @@ boucle_jeu:
  li $a0 100
  jal sleep
  j boucle_jeu
+#------------------------Fin de "Etique  boucle_jeu_nouvelle_vie"------------------------#
  
+ 
+ 
+ 
+ 
+ 
+#------------------Label attaque------------------#
+attaque : 	
+#contrôle le ralentissement des extraterrestres    
+ jal alienTurn
+ jal resolveAndPrintShots
+ addi $s2 $s2 15
+ j boucle_jeu
+#------------------Fin du "Label attaque"------------------#
+  
+
+
+
 
  
-#################################################################################
+#########################################################################################
+#											#
+#				Nos fonctions 						#
+#				------------						#
+#		      	     1. "PositionExtraV"	(Condition de fin de jeu)	#
+#			     2. "FinJeu_Batiment"	(Condition de fin de jeu)	#
+# 			     3. "FinJeu_Extramorts" 	(Condition de fin de jeu)	#
+#			     4. "FinJeu_Collision" 	(Condition de fin de jeu)	#
+#			     5. "Calcul_Score"						#
+#											#
+#########################################################################################
+
+
+
 
 
 
 # -------------------------Conditions de Fin de Jeu---------------------#
+
+#----------------------------PositionExtraV-----------------------------#
 PositionExtraV:
-#
+#Renvoie dans $v0 le numéro de la dernière ligne ayant des extra-terrestres vivants
+#cette fonction utilise le retour de la fonction FinJeu_Extramorts
+#Effet de bord : Renvoie dans $v0 un entier correspondant à la dernière ligne contenant des extra-vivants
+
 #prologue
  add $sp $sp -8
  sw $a0 4($sp)
@@ -2375,6 +2423,7 @@ PositionExtraV:
  
 #corps
  ble $a0 4 Ligne1
+ 
  beq $a0 5 Ligne2
  beq $a0 6 Ligne2
  beq $a0 7 Ligne2
@@ -2399,10 +2448,22 @@ PositionExtraV:
  lw $ra 0($sp)
  addi $sp $sp 8
  jr $ra
- 
-##################################
+#----------------------------Fin de la fonction "PositionExtraV"-------------------------------#
 
+
+
+
+
+
+
+
+
+#----------------------------FinJeu_Collision-----------------------------#
 FinJeu_Collision:
+#Cette fonction traite la collision entre la boîte invisible des extra-terrestre et les batiments
+#Elle s'adapte en fonction de des lignes comportant des extra-terrestres vivants
+#Effet de bord : Arrete le jeu en cas de collision. 
+
 #prologue
  add $sp $sp -8
  sw $a0 4($sp)
@@ -2451,8 +2512,22 @@ Fin_FinJeu_Collision :
  lw $ra 0($sp)
  addi $sp $sp 8
  jr $ra
- 
+#----------------------------Fin de la fonction "FinJeu_Collision"-----------------------------# 
+
+
+
+
+
+
+
+
+
+
+#----------------------------FinJeu_Batiment-----------------------------#
 FinJeu_Batiment:
+#Verifie si tous les batiments ont été détruits par les extra-terrestres
+#effet de bord : arrete le jeu si tous les batiments sont détruits
+
 #prologue
  addi $sp $sp -8
  sw $a0 4($sp)
@@ -2479,8 +2554,23 @@ FinJeu_Batiment:
  lw $ra 0($sp)
  addi $sp $sp 8
  jr $ra
+ #----------------------------Fin de la fonction "FinJeu_Batiment"-----------------------------#
 
+
+
+
+
+
+
+
+
+
+#----------------------------FinJeu_Extramorts-----------------------------#
 FinJeu_Extramorts:
+#Renvoie le numero du dernier extra-terrestre encore en vie en partant de la dernière ligne (vers le bas). 
+#numéroté de 14-0...
+#Effet de bord : retourne dans $v0 un entier correspondant à numero du derniere extra terrestre encore en vie
+
 #prologue 
  add $sp $sp -8
  sw $a0 4($sp)
@@ -2488,7 +2578,7 @@ FinJeu_Extramorts:
 #corps
  la $a0 enemiesLife
  li $t0 14
- #add $t0 $a0 $t0
+
  
  debut_boucle_extramorts:
  blt $t0 $zero finJeu
@@ -2507,14 +2597,21 @@ FinJeu_Extramorts:
  addi $sp $sp 8
  move $v0 $t0
  jr $ra
+ #----------------------------Fin de la fonction "FinJeu_Extramorts"-----------------------------#
+ # -------------------------Fin des Conditions de Fin de Jeu---------------------#
  
-# le label attaque contrôle le ralentissement des extraterrestres
-attaque : 	    
- jal alienTurn
- jal resolveAndPrintShots
- addi $s2 $s2 15
- j boucle_jeu
-  
+ 
+ 
+ 
+ 
+ 
+#------------Etiquette PréFin-----------#
+#Code implenmentant le nombre de partie pour le joueur
+#Propose un système de calcul de score "
+#qui correspond au nombbre total d'extra tués dans la jeu
+#Repete le jeu 3 en cas d'echec du joueur
+#sinon se branche à l'etique de fin de jeu 
+
 PréFin : 
  jal Calcul_Score
  move $t0 $v0
@@ -2523,8 +2620,19 @@ PréFin :
  li $t3 3
  beq $s3 $t3 finJeu
  j boucle_jeu_nouvelle_vie
-
+#------------Fin de "Etiquette PréFin"-----------#
+ 
+ 
+ 
+ 
+ 
+ 
+ #----------------------------"Calcul_Score"-----------------------------#
 Calcul_Score :
+#Propose un système de calcul de score
+#Le calcul consiste à faire la somme total des extra-terrester tué par le joueurs en cours de partie(s)
+#Effet de bord : Retourne dans $v0 un entier correspondant au nombre d'extra tué au cours d'une partie
+
 #prologue
  addi $sp $sp -8
  sw $a0 4($sp)
@@ -2560,7 +2668,24 @@ Calcul_Score :
  lw $ra 0($sp)
  addi $sp $sp 8
  jr $ra 
+ #----------------------------Fin de la fonction "Calcul_Score"-----------------------------#
  
+ 
+ 
+ 
+ 
+ 
+#ligne_horizontale : .asciiz "################################################################################"
+#diese : .ascii "#"
+#diese_fin : .ascciz "\t\t\t\t\t\t\t\t\t\t#"
+#msg_fin_jeu : .ascii "\t\tFin de partie \n\t\t Score : "
+#saut : .asciiz "\n"
+
+ 
+ #--------------------------Etique de fin de jeu------------------------#
+ #Affche le message de fin de jeu 
+ #Affiche le score total du joueur
+ #Arrête le jeu
 finJeu:
  la $t0 ligne_horizontale
  la $t1 msg_fin_jeu
@@ -2574,4 +2699,4 @@ finJeu:
  jal print_string
  jal clean_screen
  j quit
-
+ #--------------------------Fin du jeu------------------------#
