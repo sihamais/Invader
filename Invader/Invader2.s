@@ -2331,7 +2331,7 @@ boucle_jeu:
  jal printShooter
  jal resolveAndPrintShots
  jal printBuilding
- li $a0 1
+ li $a0 4
  jal sleep
  jal Joueur_Touche
  jal FinJeu_Batiment
@@ -2340,14 +2340,115 @@ boucle_jeu:
  jal PositionExtraV
  move $a0 $v0
  jal FinJeu_Collision
- beq $s2 $zero , attaque 
- addi $s2 $s2 -1
  
+ jal NombreExtraRestant
+ move $t0 $v0
+ 
+ li $t4 4 
+ ble $t0 $t4 niveau_2
+ 
+ beq $t0 5 niveau_1
+ beq $t0 6 niveau_1
+ beq $t0 7 niveau_1
+ beq $t0 8 niveau_1
+ beq $t0 9 niveau_1
+
+ bge $t0 10 niveau_base
+
+ 
+ niveau_base:
+ beq $s2 $zero , attaque_base 
+ addi $s2 $s2 -1
+ j finbouclejeu
+ 
+ niveau_1:
+ beq $s2 $zero , attaque_niveau1
+ addi $s2 $s2 -1
+ j finbouclejeu
+ 
+ niveau_2:
+ beq $s2 $zero , attaque_niveau2 
+ addi $s2 $s2 -1
+ j finbouclejeu
+ 
+ finbouclejeu:
  j boucle_jeu
  #-----------------------------Fin de la boucle principale du jeu--------------------------------#
  
  
  
+ 
+ 
+ 
+#------------------Label "attaque_base"------------------#
+attaque_base : 	
+#contrôle le ralentissement des extraterrestres    
+ jal alienTurn
+ jal resolveAndPrintShots
+ addi $s2 $s2 30
+ j boucle_jeu
+#------------------Fin du "Label attaque"------------------#
+  
+
+#------------------Label "attaque_niveau+"------------------#
+attaque_niveau1 : 	
+#contrôle le ralentissement des extraterrestres    
+ jal alienTurn
+ jal resolveAndPrintShots
+ addi $s2 $s2 10
+ j boucle_jeu
+#------------------Fin du "Label attaque"------------------#
+
+
+ #------------------Label "attaque_niveau++"------------------#
+attaque_niveau2 : 	
+#contrôle le ralentissement des extraterrestres    
+ jal alienTurn
+ jal resolveAndPrintShots
+ addi $s2 $s2 5
+ j boucle_jeu
+#------------------Fin du "Label attaque"------------------#
+ 
+ 
+ 
+ 
+ NombreExtraRestant:
+ #Fonction permettant de connaitre le nombre d'extra-terrestre vivant restant
+ #Effet : retourne dans $v0 un entier correspondant au nombre d'extra-terrestre vivant restant
+ 
+ #prologue
+ addi $sp $sp -8
+ sw $a0 4($sp)
+ sw $ra 0($sp)
+
+#corps
+ la $a0 enemiesLife
+ li $t0 14
+ li $t6 0
+ Debut_Boucle_Restant:
+ blt $t0 $zero Vivants
+ li $t4 4
+ mul $t2 $t0 $t4
+ li $t1 1
+ add $t5 $t2 $a0
+ lw $t5 0($t5)
+ beq $t5 $t1 Compte_Vivantss
+ subi $t0 $t0 1
+ j  Debut_Boucle_Restant
+ 
+ Compte_Vivantss :
+ addi $t6 $t6 1
+ subi $t0 $t0 1
+ j  Debut_Boucle_Restant
+ 
+ Vivants: 
+ move $v0 $t6
+ 
+#epilogue
+ lw $a0 4($sp)
+ lw $ra 0($sp)
+ addi $sp $sp 8
+ jr $ra 
  
  
 
@@ -2412,19 +2513,6 @@ syscall
  
  
  
- 
- 
-#------------------Label attaque------------------#
-attaque : 	
-#contrôle le ralentissement des extraterrestres    
- jal alienTurn
- jal resolveAndPrintShots
- addi $s2 $s2 35
- j boucle_jeu
-#------------------Fin du "Label attaque"------------------#
-  
-
-
 
 
  
