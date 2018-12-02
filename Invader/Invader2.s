@@ -2323,7 +2323,7 @@ main:                                   # @main
  li $s3 0
 # s4 pour le calcul du score
  li $s4 0
- 
+ #-----------------------------Boucle principale du jeu--------------------------------#
 boucle_jeu: 
 
  jal keyStroke
@@ -2333,6 +2333,7 @@ boucle_jeu:
  jal printBuilding
  li $a0 1
  jal sleep
+ jal Joueur_Touche
  jal FinJeu_Batiment
  jal FinJeu_Extramorts
  move $a0 $v0
@@ -2341,7 +2342,15 @@ boucle_jeu:
  jal FinJeu_Collision
  beq $s2 $zero , attaque 
  addi $s2 $s2 -1
+ 
  j boucle_jeu
+ #-----------------------------Fin de la boucle principale du jeu--------------------------------#
+ 
+ 
+ 
+ 
+ 
+
  
 #------------------------Etique  boucle_jeu_nouvelle_vie------------------------#
  boucle_jeu_nouvelle_vie :
@@ -2377,7 +2386,9 @@ boucle_jeu:
  
  Renaissance_Joueur :
  
- #---------------Sound de rennaissance------------
+ #---------------Sound de rennaissance------------#
+ #Cree un son à chaque nouvelle partie 
+ 
  li $v0,33
  li $t0 0
 la $a0,beep
@@ -2389,8 +2400,8 @@ lbu $a1, duration($t0)
 move $t2,$a0
 move $t3,$a1
 syscall
+ #--------------------------------#
  
- #--------------------------------
  
  
  li $a0 100
@@ -2408,7 +2419,7 @@ attaque :
 #contrôle le ralentissement des extraterrestres    
  jal alienTurn
  jal resolveAndPrintShots
- addi $s2 $s2 15
+ addi $s2 $s2 35
  j boucle_jeu
 #------------------Fin du "Label attaque"------------------#
   
@@ -2425,7 +2436,8 @@ attaque :
 #			     2. "FinJeu_Batiment"	(Condition de fin de jeu)	#
 # 			     3. "FinJeu_Extramorts" 	(Condition de fin de jeu)	#
 #			     4. "FinJeu_Collision" 	(Condition de fin de jeu)	#
-#			     5. "Calcul_Score"						#
+#			     5. "Joueur_Touche"		(Condition de fin de jeu)	#
+#			     6. "Calcul_Score"						#
 #											#
 #########################################################################################
 
@@ -2545,6 +2557,37 @@ Fin_FinJeu_Collision :
 
 
 
+#-------------------Joueur_Touche--------------------
+Joueur_Touche:
+#Traite la collision entre les projectiles des extra-terrestre et le joueur
+#Arrete le jeu en cas de collision 
+
+#prologue
+addi $sp $sp -4
+sw $ra  0($sp)
+
+#corps
+la $t0 has_lost
+lw $t0 0($t0)
+li $t1 1
+beq $t0 $t1 Fin_Joueur_Touche1
+j Fin_Joueur_Touche2
+
+Fin_Joueur_Touche1:
+li $t0 0
+sw $t0 has_lost($t0)
+j PréFin
+
+Fin_Joueur_Touche2:
+
+#epilogue
+lw $ra 0($sp)
+addi $sp $sp 4
+jr $ra
+#-----------------Fin de la fonction Joueur_Touche-------------------
+
+
+
 
 
 
@@ -2645,7 +2688,7 @@ PréFin :
  addi $s3 $s3 1
  li $t3 3
 
-  beq $s3 $t3 finJeu
+ beq $s3 $t3 finJeu
  j boucle_jeu_nouvelle_vie
  
  
@@ -2740,59 +2783,6 @@ finJeu:
  jal print_string
 
  jal clean_screen
- ### Abre arquivos no meio do jogo
-
-ABRE:	# colocar em $a0 o address do arquivo a ser lido
-
-	li $a1,0
-
-	li $a2,0
-
-	li $v0,13
-
-	syscall
-
-	jr $ra
-
-
-
-### Fecha arquivos no meio do jogo
-
-FECHA: 	# colocar em $a0 o file descriptor
-
-	li $v0,16
-
-	syscall
-
-	jr $ra
-
-	
-
-### Finaliza o programa		
-
-GAME_OVER:	la $a0, GAMEOVER
-
-		jal ABRE
-
-		move $s0, $v0
-
-		
-
-		move $a0, $s0
-
-		la $a1,0xFF000000
-
-		li $a2,76800
-
-		li $v0,14
-
-		syscall
-
-		
-
-		move $a0, $s0
-
-		jal FECHA
  
  j quit
  #--------------------------Fin du jeu------------------------#
