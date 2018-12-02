@@ -2254,13 +2254,22 @@ $switch.table.keyStroke:
  .word 2                       # 0x2
 
 
-
 ligne_horizontale:
- .asciiz "################################################################################"
-diese : .ascii "#"
-diese_fin : .asciiz "\t\t\t\t\t\t\t\t\t\t#"
-msg_fin_jeu : .ascii "\t\tFin de partie \n\t\t Score : "
-saut : .asciiz "\n"
+ .asciiz "#########################################################################\n"
+diese:
+ .asciiz "#"
+diese_fin:
+ .asciiz "\t\t\t#\n"
+msg_fin_jeu:
+ .asciiz "\t\tFin de partie --> \tScore : "
+saut:
+ .asciiz "\n
+ 
+ beep: .byte 72
+duration: .byte 100
+volume: .byte 127
+
+GAMEOVER: .asciiz "gameover.bin"
 
 
 ################################################################################
@@ -2367,6 +2376,23 @@ boucle_jeu:
  j Boucle
  
  Renaissance_Joueur :
+ 
+ #---------------Sound de rennaissance------------
+ li $v0,33
+ li $t0 0
+la $a0,beep
+lbu $a0 beep($t0)
+addi $t2,$a0,12
+la $a1,duration
+lbu $a1, duration($t0)
+
+move $t2,$a0
+move $t3,$a1
+syscall
+ 
+ #--------------------------------
+ 
+ 
  li $a0 100
  jal sleep
  j boucle_jeu
@@ -2618,8 +2644,11 @@ PréFin :
  add $s4 $s4 $t0
  addi $s3 $s3 1
  li $t3 3
- beq $s3 $t3 finJeu
+
+  beq $s3 $t3 finJeu
  j boucle_jeu_nouvelle_vie
+ 
+ 
 #------------Fin de "Etiquette PréFin"-----------#
  
  
@@ -2668,18 +2697,23 @@ Calcul_Score :
  lw $ra 0($sp)
  addi $sp $sp 8
  jr $ra 
- #----------------------------Fin de la fonction "Calcul_Score"-----------------------------#
+#----------------------------Fin de la fonction "Calcul_Score"-----------------------------#
  
  
  
  
  
  
-#ligne_horizontale : .asciiz "################################################################################"
-#diese : .ascii "#"
-#diese_fin : .ascciz "\t\t\t\t\t\t\t\t\t\t#"
-#msg_fin_jeu : .ascii "\t\tFin de partie \n\t\t Score : "
-#saut : .asciiz "\n"
+#ligne_horizontale:
+ #.asciiz "################################################################################\n"
+#diese:
+ #.ascii "#"
+#diese_fin:
+ #.ascciz "\t\t\t\t\t\t#\n"
+#msg_fin_jeu:
+ #.ascii "\t\tFin de partie \t Score : "
+#saut:
+ #.asciiz "\n
 
  
  #--------------------------Etique de fin de jeu------------------------#
@@ -2687,16 +2721,78 @@ Calcul_Score :
  #Affiche le score total du joueur
  #Arrête le jeu
 finJeu:
- la $t0 ligne_horizontale
- la $t1 msg_fin_jeu
- move $a0 $t0
+
+ 
+ 
+ la $a0 ligne_horizontale
  jal print_string
- move $a0 $t1
+ la $a0 diese	
+ jal print_string
+ la $a0 msg_fin_jeu
  jal print_string
  move $a0 $s4
  jal print_int
+ la $a0 diese_fin
+ jal print_string
  la $a0 ligne_horizontale
  jal print_string
+ la $a0 saut
+ jal print_string
+
  jal clean_screen
+ ### Abre arquivos no meio do jogo
+
+ABRE:	# colocar em $a0 o address do arquivo a ser lido
+
+	li $a1,0
+
+	li $a2,0
+
+	li $v0,13
+
+	syscall
+
+	jr $ra
+
+
+
+### Fecha arquivos no meio do jogo
+
+FECHA: 	# colocar em $a0 o file descriptor
+
+	li $v0,16
+
+	syscall
+
+	jr $ra
+
+	
+
+### Finaliza o programa		
+
+GAME_OVER:	la $a0, GAMEOVER
+
+		jal ABRE
+
+		move $s0, $v0
+
+		
+
+		move $a0, $s0
+
+		la $a1,0xFF000000
+
+		li $a2,76800
+
+		li $v0,14
+
+		syscall
+
+		
+
+		move $a0, $s0
+
+		jal FECHA
+ 
  j quit
  #--------------------------Fin du jeu------------------------#
