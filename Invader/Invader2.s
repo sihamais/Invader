@@ -6,10 +6,10 @@
 #      \/    \/\__,_|_|  |___/ \____/ |_| |_|\_/ \__,_|\__,_|\___|_|           #
 #                                                                              #
 #                                                                              #
-#                              â„â„âââââ„â„                                        #
-#                            â„âââââââââââ„                                      #
-#                          â„âââ„âââ„âââ„âââ„âââ„                                    #
-#                            â€ââ€  â€â€  â€ââ€                                      #
+#                              â„â„âââââ„â„                                    #
+#                            â„âââââââââââ„                                    #
+#                          â„âââ„âââ„âââ„âââ„âââ„                              #
+#                            â€ââ€  â€â€  â€ââ€                                #
 #                                                                              #
 ################################################################################
 
@@ -2379,80 +2379,6 @@ boucle_jeu:
  
  
  
- 
-#------------------Label "attaque_base"------------------#
-attaque_base : 	
-#contrôle le ralentissement des extraterrestres    
- jal alienTurn
- jal resolveAndPrintShots
- addi $s2 $s2 30
- j boucle_jeu
-#------------------Fin du "Label attaque"------------------#
-  
-
-#------------------Label "attaque_niveau+"------------------#
-attaque_niveau1 : 	
-#contrôle le ralentissement des extraterrestres    
- jal alienTurn
- jal resolveAndPrintShots
- addi $s2 $s2 10
- j boucle_jeu
-#------------------Fin du "Label attaque"------------------#
-
-
- #------------------Label "attaque_niveau++"------------------#
-attaque_niveau2 : 	
-#contrôle le ralentissement des extraterrestres    
- jal alienTurn
- jal resolveAndPrintShots
- addi $s2 $s2 5
- j boucle_jeu
-#------------------Fin du "Label attaque"------------------#
- 
- 
- 
- 
- NombreExtraRestant:
- #Fonction permettant de connaitre le nombre d'extra-terrestre vivant restant
- #Effet : retourne dans $v0 un entier correspondant au nombre d'extra-terrestre vivant restant
- 
- #prologue
- addi $sp $sp -8
- sw $a0 4($sp)
- sw $ra 0($sp)
-
-#corps
- la $a0 enemiesLife
- li $t0 14
- li $t6 0
- Debut_Boucle_Restant:
- blt $t0 $zero Vivants
- li $t4 4
- mul $t2 $t0 $t4
- li $t1 1
- add $t5 $t2 $a0
- lw $t5 0($t5)
- beq $t5 $t1 Compte_Vivantss
- subi $t0 $t0 1
- j  Debut_Boucle_Restant
- 
- Compte_Vivantss :
- addi $t6 $t6 1
- subi $t0 $t0 1
- j  Debut_Boucle_Restant
- 
- Vivants: 
- move $v0 $t6
- 
-#epilogue
- lw $a0 4($sp)
- lw $ra 0($sp)
- addi $sp $sp 8
- jr $ra 
- 
- 
-
- 
 #------------------------Etique  boucle_jeu_nouvelle_vie------------------------#
  boucle_jeu_nouvelle_vie :
 #Reinitialise les données du jeu leurs états de base pour pouvoir lancer une nouvelle partie
@@ -2513,6 +2439,49 @@ syscall
  
  
  
+ 
+ 
+ 
+ 
+ 
+ ######################### QUELQUES LABELS EN RAPPORT AVEC LE NIVEAU DE DIFFICULTE DU JEU #######################
+#------------------Label "attaque_base"------------------#
+attaque_base : 	
+#contrôle le ralentissement des extraterrestres    
+ jal alienTurn
+ jal resolveAndPrintShots
+ addi $s2 $s2 30
+ j boucle_jeu
+#------------------Fin du "Label attaque"------------------#
+  
+
+#------------------Label "attaque_niveau+"------------------#
+attaque_niveau1 : 	
+#contrôle le ralentissement des extraterrestres    
+ jal alienTurn
+ jal resolveAndPrintShots
+ addi $s2 $s2 10
+ j boucle_jeu
+#------------------Fin du "Label attaque"------------------#
+
+
+ #------------------Label "attaque_niveau++"------------------#
+attaque_niveau2 : 	
+#contrôle le ralentissement des extraterrestres    
+ jal alienTurn
+ jal resolveAndPrintShots
+ addi $s2 $s2 5
+ j boucle_jeu
+#------------------Fin du "Label attaque"------------------#
+
+######################### FIN DES LABELS EN RAPPORT AVEC LE NIVEAU DE DIFFICULTE DU JEU #######################
+#
+ 
+ 
+ 
+
+ 
+ 
 
 
  
@@ -2526,6 +2495,7 @@ syscall
 #			     4. "FinJeu_Collision" 	(Condition de fin de jeu)	#
 #			     5. "Joueur_Touche"		(Condition de fin de jeu)	#
 #			     6. "Calcul_Score"						#
+#			     7. "NombreExtraRestant" 	(Niveau de difficulté - Bonus)  #
 #											#
 #########################################################################################
 
@@ -2725,6 +2695,7 @@ FinJeu_Batiment:
 #----------------------------FinJeu_Extramorts-----------------------------#
 FinJeu_Extramorts:
 #Renvoie le numero du dernier extra-terrestre encore en vie en partant de la dernière ligne (vers le bas). 
+#permet aussi de savoir si tous les extra sont morts en cours de partie
 #numéroté de 14-0...
 #Effet de bord : retourne dans $v0 un entier correspondant à numero du derniere extra terrestre encore en vie
 
@@ -2738,7 +2709,7 @@ FinJeu_Extramorts:
 
  
  debut_boucle_extramorts:
- blt $t0 $zero finJeu
+ blt $t0 $zero victoireExtra
  li $t4 4
  mul $t2 $t0 $t4
  li $t1 1
@@ -2835,6 +2806,53 @@ Calcul_Score :
  
  
  
+ 
+ 
+ #----------------------Fonction NombreExtraRestant------------------------#
+ NombreExtraRestant:
+ #Fonction permettant de connaitre le nombre d'extra-terrestre vivant restant
+ #Effet : retourne dans $v0 un entier correspondant au nombre d'extra-terrestre vivant restant
+ 
+ #prologue
+ addi $sp $sp -8
+ sw $a0 4($sp)
+ sw $ra 0($sp)
+
+#corps
+ la $a0 enemiesLife
+ li $t0 14
+ li $t6 0
+ Debut_Boucle_Restant:
+ blt $t0 $zero Vivants
+ li $t4 4
+ mul $t2 $t0 $t4
+ li $t1 1
+ add $t5 $t2 $a0
+ lw $t5 0($t5)
+ beq $t5 $t1 Compte_Vivantss
+ subi $t0 $t0 1
+ j  Debut_Boucle_Restant
+ 
+ Compte_Vivantss :
+ addi $t6 $t6 1
+ subi $t0 $t0 1
+ j  Debut_Boucle_Restant
+ 
+ Vivants: 
+ move $v0 $t6
+ 
+#epilogue
+ lw $a0 4($sp)
+ lw $ra 0($sp)
+ addi $sp $sp 8
+ jr $ra 
+ #----------------------Fin de la fonction "NombreExtraRestant"------------------------#
+ 
+
+ 
+ 
+ 
+ 
 #ligne_horizontale:
  #.asciiz "################################################################################\n"
 #diese:
@@ -2851,6 +2869,11 @@ Calcul_Score :
  #Affche le message de fin de jeu 
  #Affiche le score total du joueur
  #Arrête le jeu
+victoireExtra:
+
+ jal Calcul_Score
+ move $s4 $v0
+
 finJeu:
 
  
